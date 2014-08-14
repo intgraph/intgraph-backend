@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script src="/static/buckets-minified.js"></script>
+<script src="/static/angular.min.js"></script>
+<script>
+var IgApp = angular.module('IgApp', [], function($interpolateProvider) {
+  $interpolateProvider.startSymbol('{$');
+  $interpolateProvider.endSymbol('$}');
+});
+
+var uniqueItems = function (data, key) {
+    var result = new buckets.Set()
+    for (var i = 0; i < data.length; i++) {
+        var tags = data[i][key];
+        for (var idx in tags) {
+            result.add(tags[idx]);
+        }
+    }
+    return result.toArray();
+};
+
+function IgCtrl($scope, filterFilter) {
+    {% for key, value in tags.items() %}
+    $scope.use{{ key }} = {};
+    {% endfor %}    
+    
+    $scope.articles = [
+        {% for article in article_json_list %}
+        {{ article|safe }},
+        {% endfor %}
+    ]; 
+    
+    $scope.$watch(function () {
+        return {
+            articles: $scope.articles,
+            {% for key, value in tags.items() %}
+            use{{ key }}: $scope.use{{ key }},
+            {% endfor %}    
+        }
+    }, function (value) {
+        var selected;
+        
+        $scope.count = function (prop, value) {
+            return function (el) {
+                return el[prop] == value;
+            };
+        };
+        
+        var filterAfterAll = $scope.articles;
+        var filterAfterThis = [];
+        {% for key, value in tags.items() %}
+        console.log(filterAfterAll);
+        $scope.{{ key }}Group = uniqueItems($scope.articles, '{{ key }}');       
+        selected = false;
+        filterAfterThis = [];
+        for (var j in filterAfterAll) {
+            var p = filterAfterAll[j];
+            for (var i in $scope.use{{ key }}) {
+                if ($scope.use{{ key }}[i]) {
+                    selected = true;
+                    console.log(i, p.{{ key }});
+                    console.log(p.{{ key }}.indexOf(i) != -1);
+                    if (p.{{ key }}.indexOf(i) != -1) {
+                        filterAfterThis.push(p);
+                        break;
+                    }
+                }
+            }        
+        }
+        console.log("{{ key }}", filterAfterThis, filterAfterAll, selected);
+        if (!selected) {
+            filterAfterThis = filterAfterAll;
+            $scope.filteredArticles = filterAfterThis;      
+        }
+        filterAfterAll = filterAfterThis;
+        {% endfor %}
+        $scope.filteredArticles = filterAfterAll; 
+        console.log(filterAfterThis, filterAfterAll);
+    }, true);
+    
+    
+    $scope.$watch('filtered', function (newValue) {
+        if (angular.isArray(newValue)) {
+            console.log(newValue.length);
+        }
+    }, true);    
+}
+
+IgApp.filter('groupBy',
+            function () {
+                return function (collection, key) {
+                    if (collection === null) return;
+                    return uniqueItems(collection, key);
+        };
+    });
+
+</script>
+{% endblock %}
+
+{% block content %}
+<div ng-controller="IgCtrl">
+    <h1>{{ title }}</h1>
+    <br/>
+    <div class="row">
+        <div class="col-md-10">
+            <table class="table">
+                <thead> <tr>
+                <th>#</th>
+                <th>Problem</th>
+                <th>Add time</th>
+                </tr> </thead>
+                <tbody>
+                <tr ng-repeat="article in filteredArticles | filter:query">
+                    <td> {$ $index + 1 $} </td>
+                    <td> <a href="{$ article.url $}"> {$ article.title $} </a></td>
+                    <td> {$ article.date $} </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    
+        <div class="col-md-2">
+            <h2> Filters </h2>
+            <br/>
+            <div class="form-group">
+                <label class="sr-only" for="igsearch">Search</label>
+                <input type="text" class="form-control" id="igsearch" placeholder="Search" ng-model="query.title">
+            </div>
+            
+            {% for key, value in tags.items() %}
+            <h3>
+            <span class="label label-info">{{ key }}</span>
+            </h3>
+                <p></p>
+                <div class="checkbox" ng-repeat="{{ key }} in {{ key }}Group">
+                    <label>
+                        <input type="checkbox" ng-model="use{{ key }}[{{ key }}]"/>
+                        {$ {{ key }} $}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

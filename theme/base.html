@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="/static/bootstrap3/js/jquery.min.js"></script>
+        <script src="/static/bootstrap3/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/bootstrap3/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="/static/bootstrap3/css/font-awesome.min.css"/>
+        <link rel="stylesheet" type="text/css" href="/static/pygments.css"/>
+        
+        <title>{% block title %}{% endblock %}</title>
+        {% block head %}
+        {% endblock %}
+    </head>
+    <body ng-app="IgApp">
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/index.html">{{ config.SITENAME }}</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    {% for frame in frames %}
+                    <li>
+                        <a href="/{{ frame.url }}">{{ frame.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <hr/>
+        <footer class="bs-footer" role="contentinfo">
+            <div class="container">
+                <p>Powered by IntGraph</p>
+                <p>Designed and built by <a href="http://wizmann.tk">Wizmann</a>.</p>
+            </div>
+        </footer>
+
+        {% block extend_css %} {% endblock %}
+        {% block extend_js  %} {% endblock %}
+    </body>
+</html>

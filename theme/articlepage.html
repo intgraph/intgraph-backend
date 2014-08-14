@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1> {{ stats.Metadata.title }} </h1>
+
+<div class="panel">
+    <div class="panel-body">
+        <footer class="post-info">
+            <span class="label label-default">Date</span>
+            <span class="published">
+                <i class="icon-calendar"></i>{{ stats.Metadata.date }}
+            </span>
+            <p></p>
+            {% for key, vlist in stats.Tags.items() %}
+                <span class="label label-primary ">{{ key }}</span>
+                {% for value in vlist %}
+                <span> {{ value }}  {% if not loop.last %}/{% endif %} </span>
+                {% endfor %}
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            {% endfor %}
+        </footer>
+    </div>
+</div>
+
+
+{% for session, content in stats.Content.items() %}
+
+<h2>{{ session }}</h2>
+
+{% if session in hide_session %}
+
+<p>
+    <button type="button" class="btn btn-danger btn-lg showbtn" bind="class_{{ session }}">Click to show</button>
+</p>
+
+<div class="hide" id="class_{{ session }}">
+{% else %}
+
+<div>
+{% endif %}
+
+{{ content|safe }}
+
+</div>
+{% endfor %}
+
+{% endblock %}
+
+
+{% block extend_js %}
+<script>
+$(document).ready(function(){
+    $(".showbtn").click(function(){
+        var divname = $(this).attr("bind");
+        console.log(divname);
+        $("#" + divname).removeClass("hide");
+    });
+});
+</script>
+{% endblock %}
