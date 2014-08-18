@@ -3,6 +3,7 @@ import os
 import json
 import Config
 import gData
+import operator
 from Render import html_render, markdown_render
 import MarkdownParser
 from Utils import is_markdown, stripext
@@ -46,11 +47,12 @@ class ListView(BaseView):
         else:
             outlvpath = os.path.join(gData.outdir, self.view_name + '.html')
         with open(outlvpath, 'w') as outlvfile:
-            html = html_render('listpage.html', {'title': self.view_name, 'article_json_list': self.articlelist, 'tags': self.tags})
+            self.articlelist.sort(key=operator.itemgetter('date'), reverse=True)
+            html = html_render('listpage.html', {'title': self.view_name, 'article_json_list': map(lambda x:json.dumps(x), self.articlelist), 'tags': self.tags})
             outlvfile.write(html)
     
     def append_info(self, stats):
-        self.articlelist.append(json.dumps(dict(stats.Metadata.items() + stats.Tags.items())))
+        self.articlelist.append(dict(stats.Metadata.items() + stats.Tags.items()))
         for key, value in stats.Tags.items():
             self.tags[key] = self.tags.get(key, []) + value
     

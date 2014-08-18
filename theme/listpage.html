@@ -23,35 +23,33 @@ var uniqueItems = function (data, key) {
 function IgCtrl($scope, filterFilter) {
     {% for key, value in tags.items() %}
     $scope.use{{ key }} = {};
-    {% endfor %}    
-    
+    {% endfor %}
+
     $scope.articles = [
         {% for article in article_json_list %}
         {{ article|safe }},
         {% endfor %}
-    ]; 
-    
+    ];
+
     $scope.$watch(function () {
         return {
             articles: $scope.articles,
             {% for key, value in tags.items() %}
             use{{ key }}: $scope.use{{ key }},
-            {% endfor %}    
+            {% endfor %}
         }
     }, function (value) {
         var selected;
-        
         $scope.count = function (prop, value) {
             return function (el) {
                 return el[prop] == value;
             };
         };
-        
         var filterAfterAll = $scope.articles;
         var filterAfterThis = [];
         {% for key, value in tags.items() %}
         console.log(filterAfterAll);
-        $scope.{{ key }}Group = uniqueItems($scope.articles, '{{ key }}');       
+        $scope.{{ key }}Group = uniqueItems($scope.articles, '{{ key }}');
         selected = false;
         filterAfterThis = [];
         for (var j in filterAfterAll) {
@@ -66,32 +64,31 @@ function IgCtrl($scope, filterFilter) {
                         break;
                     }
                 }
-            }        
+            }
         }
         console.log("{{ key }}", filterAfterThis, filterAfterAll, selected);
         if (!selected) {
             filterAfterThis = filterAfterAll;
-            $scope.filteredArticles = filterAfterThis;      
+            $scope.filteredArticles = filterAfterThis;
         }
         filterAfterAll = filterAfterThis;
         {% endfor %}
-        $scope.filteredArticles = filterAfterAll; 
+        $scope.filteredArticles = filterAfterAll;
         console.log(filterAfterThis, filterAfterAll);
     }, true);
-    
-    
+
     $scope.$watch('filtered', function (newValue) {
         if (angular.isArray(newValue)) {
             console.log(newValue.length);
         }
-    }, true);    
+    }, true);
 }
 
 IgApp.filter('groupBy',
-            function () {
-                return function (collection, key) {
-                    if (collection === null) return;
-                    return uniqueItems(collection, key);
+    function () {
+        return function (collection, key) {
+            if (collection === null) return;
+            return uniqueItems(collection, key);
         };
     });
 
