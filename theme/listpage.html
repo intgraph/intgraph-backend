@@ -130,7 +130,7 @@ IgApp.filter('groupBy',
             <span class="label label-info">{{ key }}</span>
             </h3>
                 <p></p>
-                <div class="checkbox" ng-repeat="{{ key }} in {{ key }}Group">
+                <div class="checkbox" ng-repeat="{{ key }} in {{ key }}Group | orderBy:'toString()'">
                     <label>
                         <input type="checkbox" ng-model="use{{ key }}[{{ key }}]"/>
                         {$ {{ key }} $}

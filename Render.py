@@ -5,6 +5,7 @@ import jinja2
 import gData
 import Config
 import misaka
+import time
 import pygments.lexers
 import pygments.formatters
 import cgi
@@ -33,6 +34,7 @@ def markdown_render(content):
 def html_render(tmpl, infodict):
     infodict['config'] = Config
     infodict['frames'] = gData.frames
+    infodict['nowtime'] = time.strftime('%Y-%m-%d %H:%M:%S %Z',time.localtime(time.time()))
     print infodict['frames']
     env = jinja2.Environment(loader = jinja2.FileSystemLoader(Config.THEME_PATH), autoescape=True)
     tmpl = env.get_template(tmpl)
